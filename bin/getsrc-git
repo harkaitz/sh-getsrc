@@ -1,0 +1,113 @@
+#!/bin/sh -e
+#L:
+#L:  MIT License
+#L:  
+#l:  Bug reports, feature requests to gemini|https://harkadev.com/oss
+#l:  Copyright (c) 2022 Harkaitz Agirre, harkaitz.aguirre@gmail.com
+#L:
+#L:  Permission is hereby granted, free of charge, to any person obtaining
+#L:  a copy of this software and associated documentation files (the
+#L:  "Software"), to deal in the Software without restriction, including
+#L:  without limitation the rights to use, copy, modify, merge, publish,
+#L:  distribute, sublicense, and/or sell copies of the Software, and to
+#L:  permit persons to whom the Software is furnished to do so, subject to
+#L:  the following conditions:
+#L:
+#L:  The above copyright notice and this permission notice shall be
+#L:  included in all copies or substantial portions of the Software.
+#L:
+#L:  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#L:  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#L:  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#L:  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+#L:  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+#L:  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#L:  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+##:
+#h: Usage: $0 [-v][-n NAME] URL[,BRANCH] [SDIR]
+#h:
+#h: Download a git repository to a directory, optionally to
+#h: SDIR. Check honored environment variables with -v. Force
+#h: download with -f.
+##:
+getsrc_git() {
+    local pwd="`pwd`"
+    ## Parse command line arguments.
+    local OPTIND optopt= opt_v= url_d=
+    while getopts "vn:f" optopt;do # OPTARG
+        local ops="${ops}${optopt}"
+        case $optopt in
+            v)  local opt_v=y;;
+            n)  local url_d="${OPTARG}";;
+            f)  local GETSRC_FORCE=y;;
+            \?) return 1;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    local url="$1" sdir="${2:-${GETSRC_DIR}}"
+    ## Show variables.
+    if test @"${opt_v}" = @"y";then
+        getsrc_git_show_variables
+        return 0
+    fi
+    ## Require at least an URL.
+    if test ! -n "${url}";then
+        echo "getsrc-git: error: Please specify an URL." >&2
+        return 1
+    fi
+    ## Get directory.
+    local url_d="`getsrc_git_extract_dir "${url}"`"
+    if test ! -n "${url_d}";then
+        echo "getsrc-git: error: Can't calculate directory from '${url}'." >&2
+        return 1
+    fi
+    local dir="${sdir}/${url_d}"
+    ## Skip network operations directory if exists.
+    if test ! -e "${dir}/.git" || test @"${GETSRC_FORCE}" = @"y";then
+        ## Download.
+        local url_v="`getsrc_git_extract_ver "${url}"`"
+        local url_v="${url_v:-master}"
+        if test ! -d "${dir}/.git";then
+            local url_u="`getsrc_git_extract_url "${url}"`"
+            echo "git clone ${url_u} ${dir}" >&2
+            git clone "${url_u}" "${dir}"
+        fi
+        ## Checkout branch/tag.
+        echo "Entering directory ${dir} ..." >&2
+        cd "${dir}"
+        echo "git checkout ${url_v}"         >&2
+        git checkout ${url_v} >&2
+        echo "git submodule update --recursive --init" >&2
+        git submodule update --recursive --init >&2
+        echo "Leaving directory ${dir} ..."  >&2
+        cd "${pwd}"
+    fi
+    ## Print directory.
+    echo "${dir}"
+}
+getsrc_git_show_variables() {
+    printf '%-20s : %s\n' GETSRC_DIR   "${GETSRC_DIR}"
+    printf '%-20s : %s\n' GETSRC_FORCE "${GETSRC_FORCE}"
+}
+getsrc_git_calc_variables() {
+    GETSRC_DIR="${GETSRC_DIR:-${HOME}/.local/src}"
+    GETSRC_FORCE="${GETSRC_FORCE:-n}"
+}
+## -----------------------------------------------------------------------------
+getsrc_git_extract_url() { echo "$1" | sed    's|,.*||';  }
+getsrc_git_extract_ver() { echo "$1" | sed -n 's|.*,||p'; }
+getsrc_git_extract_dir() { getsrc_git_extract_url "$1" | sed 's|^.*/||' | sed 's|\.git$||'; }
+
+
+
+## -----------------------------------------------------------------------------
+getsrc_git_calc_variables
+if test @"`basename "$0"`" = @"getsrc-git";then
+    if test -n "$1";then
+        getsrc_git "$@"
+    else
+        sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|`basename $0`|g"
+        echo ""
+        sed -n 's/^ *#l: \{0,2\}//p' "$0"
+    fi
+fi

@@ -1,0 +1,105 @@
+#!/bin/sh -e
+#L:
+#L:  MIT License
+#L:  
+#l:  Bug reports, feature requests to gemini|https://harkadev.com/oss
+#l:  Copyright (c) 2022 Harkaitz Agirre, harkaitz.aguirre@gmail.com
+#L:
+#L:  Permission is hereby granted, free of charge, to any person obtaining
+#L:  a copy of this software and associated documentation files (the
+#L:  "Software"), to deal in the Software without restriction, including
+#L:  without limitation the rights to use, copy, modify, merge, publish,
+#L:  distribute, sublicense, and/or sell copies of the Software, and to
+#L:  permit persons to whom the Software is furnished to do so, subject to
+#L:  the following conditions:
+#L:
+#L:  The above copyright notice and this permission notice shall be
+#L:  included in all copies or substantial portions of the Software.
+#L:
+#L:  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#L:  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#L:  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#L:  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+#L:  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+#L:  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#L:  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+##:
+#h: Usage: $0 [-n NAME][-c 0] URL [SDIR]
+#h:
+#h: Download a tar, choose a place for it, extract and print the directory
+#h: onto which it was downloaded. With -c tell how much components to strip.
+##:
+getsrc_tar() {
+    ## Parse command line arguments.
+    local OPTIND optopt= opt_v=n nam= opt_c=1
+    while getopts "vn:c:" optopt;do # OPTARG
+        case $optopt in
+            v)  local opt_v=y;;
+            n)  local nam="${OPTARG}";;
+            c)  local opt_c="${OPTARG}";;
+            \?) return 1;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    local url="$1" sdir="${2:-${GETSRC_DIR}}"
+    ## Show variables.
+    if test @"${opt_v}" = @"y";then
+        getsrc_tar_show_variables
+        return 0
+    fi
+    ## Require at least an URL.
+    if test ! -n "${url}";then
+        echo "getsrc-tar: error: Please specify an URL." >&2
+        return 1
+    fi
+    ## Download tar.
+    local tar="${GETSRC_CACHE}/`basename "${url}"`"
+    local nam="${nam:-`basename "${tar}" | sed 's|\.tar\..*||;s|\.txz$||;s|\.zip$||'`}"
+    local dir="${sdir}/${nam}"
+    if test ! -d "${dir}/.tar" || test @"${GETSRC_FORCE}" = @"y";then
+        if test ! -f "${tar}" || test @"${GETSRC_FORCE}" = @"y";then
+            echo "${SCRNAME}: wget -q -O ${tar} ${url}" >&2
+            mkdir -p "${GETSRC_CACHE}"
+            wget -q -O "${tar}.tmp" "${url}" >&2
+            mv "${tar}.tmp" "${tar}"         >&2
+        fi
+        rm -rf "${dir}"
+        mkdir -p "${dir}"
+        case "${tar}" in
+            *.zip) echo "${SCRNAME}: bsdtar xf ${tar} -C ${dir} --strip-components=${opt_c}" >&2
+                   bsdtar xf "${tar}" -C "${dir}" --strip-components=${opt_c} >&2
+                   ;;
+            *)     echo "${SCRNAME}: tar xf ${tar} -C ${dir} --strip-components=${opt_c}" >&2
+                   tar    xf "${tar}" -C "${dir}" --strip-components=${opt_c} >&2
+                   ;;
+        esac
+        mkdir -p "${dir}/.tar"
+    fi
+    echo "${dir}"
+        
+}
+getsrc_tar_show_variables() {
+    printf '%-20s : %s\n' GETSRC_DIR   "${GETSRC_DIR}"
+    printf '%-20s : %s\n' GETSRC_CACHE "${GETSRC_CACHE}"
+    printf '%-20s : %s\n' GETSRC_FORCE "${GETSRC_FORCE}"
+}
+getsrc_tar_calc_variables() {
+    GETSRC_DIR="${GETSRC_DIR:-${HOME}/.local/src}"
+    GETSRC_CACHE="${GETSRC_CACHE:-${HOME}/.local/cache}"
+    GETSRC_FORCE="${GETSRC_FORCE:-n}"
+}
+## -----------------------------------------------------------------------------
+
+
+## -----------------------------------------------------------------------------
+getsrc_tar_calc_variables
+SCRNAME="`basename "$0"`"
+if test @"${SCRNAME}" = @"getsrc-tar";then
+    if test -n "$1";then
+        getsrc_tar "$@"
+    else
+        sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|`basename $0`|g"
+        echo ""
+        sed -n 's/^ *#l: \{0,2\}//p' "$0"
+    fi
+fi
