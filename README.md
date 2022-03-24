@@ -25,6 +25,53 @@ Write an script that downloads a C project and build's it.
 
 ## Help
 
+getsrc-cached
+
+    Usage: getsrc-cached [-v][-f][-n FILENAME] URL [CDIR]
+    
+    Download a file to a local cache directory optionally
+    with a FILENAME. Check honored environment variables
+    with -v. Force download with -f.
+    
+
+getsrc-git
+
+    Usage: getsrc-git [-v][-n NAME] URL[,BRANCH] [SDIR]
+    
+    Download a git repository to a directory, optionally to
+    SDIR. Check honored environment variables with -v. Force
+    download with -f.
+
+getsrc-newdir
+
+    Usage: getsrc-newdir NAME
+    
+    Create empty directory in $GETSRC_DIR.
+
+getsrc-tar
+
+    Usage: getsrc-tar [-n NAME][-c 0] URL [SDIR]
+    
+    Download a tar, choose a place for it, extract and print the directory
+    onto which it was downloaded. With -c tell how much components to strip.
+
+getsrc-upload
+
+    Usage: getsrc-upload DIR SSH [NAME]
+    
+    Upload source directory DIR to remote machine SSH. You
+    can then use `getsrc-user -s NAME` in the remote machine
+    to pick this directory.
+
+getsrc-user
+
+    Usage: getsrc-user NAME [SDIR]
+    
+    Get sources from user's own directories.
+    
+    -v : Show configuration.
+    -s : Fall back to [SDIR] [$GETSRC_DIR]
+
 ## Collaborating
 
 For making bug reports, feature requests and donations visit one of the
