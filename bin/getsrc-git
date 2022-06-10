@@ -24,7 +24,7 @@
 #L:  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #L:  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ##:
-#h: Usage: $0 [-v][-n NAME] URL[,BRANCH] [SDIR]
+#h: Usage: $0 [-v][-n NAME][-N] URL[,BRANCH] [SDIR]
 #h:
 #h: Download a git repository to a directory, optionally to
 #h: SDIR. Check honored environment variables with -v. Force
@@ -33,13 +33,14 @@
 getsrc_git() {
     local pwd="`pwd`"
     ## Parse command line arguments.
-    local OPTIND optopt= opt_v= url_d=
-    while getopts "vn:f" optopt;do # OPTARG
+    local OPTIND optopt= opt_v= url_d= gargs= depth_1=
+    while getopts "vn:fN" optopt;do # OPTARG
         local ops="${ops}${optopt}"
         case $optopt in
             v)  local opt_v=y;;
             n)  local url_d="${OPTARG}";;
             f)  local GETSRC_FORCE=y;;
+            N)  local gargs="${gargs} --depth 1" depth_1=y;;
             \?) return 1;;
         esac
     done
@@ -70,16 +71,20 @@ getsrc_git() {
         if test ! -d "${dir}/.git";then
             local url_u="`getsrc_git_extract_url "${url}"`"
             echo "git clone ${url_u} ${dir}" >&2
-            git clone "${url_u}" "${dir}"
+            git clone ${gargs} "${url_u}" "${dir}"
         fi
         ## Checkout branch/tag.
+        if test ! -n "${depth_1}"; then
         echo "Entering directory ${dir} ..." >&2
         cd "${dir}"
-        echo "git checkout ${url_v}"         >&2
-        git checkout ${url_v} >&2
+        if test ! @"${url_v}" = @"any";then
+            echo "git checkout ${url_v}"         >&2
+            git checkout ${url_v} >&2
+        fi
         echo "git submodule update --recursive --init" >&2
         git submodule update --recursive --init >&2
         echo "Leaving directory ${dir} ..."  >&2
+        fi
         cd "${pwd}"
     fi
     ## Print directory.

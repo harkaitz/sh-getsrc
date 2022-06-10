@@ -61,8 +61,8 @@ getsrc_user() {
     elif test @"${o_s}" = @"y" && test -d "${GETSRC_DIR}/${name}";then
         printf '%s\n' "${GETSRC_DIR}/${name}"
     else
-        echo "${SCRNAME}: error: Command didn't return a directory." >&2
-        echo "${SCRNAME}: error: ${cmd}" >&2
+        echo "${SCRNAME}: error: Can't find '${name}'." >&2
+        echo "${SCRNAME}: error: > ${cmd}" >&2
         return 1
     fi
 }
