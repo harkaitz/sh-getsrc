@@ -72,6 +72,13 @@ getsrc-user
     -v : Show configuration.
     -s : Fall back to [SDIR] [$GETSRC_DIR]
 
+getsrc-vault
+
+    Usage: getsrc-vault [-n NAME] COMMAND...
+    
+    Download source code and safe to GETSRC_VAULT if defined
+    and if it exists.
+
 ## Collaborating
 
 For making bug reports, feature requests and donations visit

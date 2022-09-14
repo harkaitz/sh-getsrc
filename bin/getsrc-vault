@@ -42,7 +42,6 @@ getsrc_vault() {
         echo "${SCRNAME}: error: Please specify a name with -n NAME." >&2
         return 1
     fi
-    local GETSRC_FORCE=y
     local src="` "$@" `"
     test -n "${src}"
     if test -n "${vd}" && test -d "${vd}" && test ! -e "${vd}/${n}.tar.gz"; then
