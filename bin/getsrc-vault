@@ -28,6 +28,8 @@
 #h:
 #h: Download source code and safe to GETSRC_VAULT if defined
 #h: and if it exists.
+#h:
+#h: The command should return a file or directory.
 ##:
 getsrc_vault() {
     local OPTIND optopt n='' vd="${GETSRC_VAULT}" td="/tmp/getsrc"

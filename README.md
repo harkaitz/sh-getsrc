@@ -78,6 +78,8 @@ getsrc-vault
     
     Download source code and safe to GETSRC_VAULT if defined
     and if it exists.
+    
+    The command should return a file or directory.
 
 ## Collaborating
 
