@@ -1,34 +1,13 @@
 #!/bin/sh -e
-#L:  MIT License
-#L:
-#l:  Copyright (c) 2023 Harkaitz Agirre, harkaitz.aguirre@gmail.com
-#L:
-#L:  Permission is hereby granted, free of charge, to any person obtaining a copy
-#L:  of this software and associated documentation files (the "Software"), to deal
-#L:  in the Software without restriction, including without limitation the rights
-#L:  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#L:  copies of the Software, and to permit persons to whom the Software is
-#L:  furnished to do so, subject to the following conditions:
-#L:
-#L:  The above copyright notice and this permission notice shall be included in all
-#L:  copies or substantial portions of the Software.
-#L:
-#L:  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#L:  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#L:  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#L:  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#L:  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#L:  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#L:  SOFTWARE.
 ##:
-#h: Usage: $0 NAME
+#h: Usage: getsrc-newdir NAME
 #h:
 #h: Create empty directory in $GETSRC_DIR.
 ##:
 getsrc_newdir() {
     local name="$1"
     if test ! -n "${name}";then
-        echo "${SCRNAME}: error: Please specify a name." >&2
+        echo "error: Please specify a name." >&2
         return 1
     fi
     mkdir -p "${GETSRC_DIR}/${name}"
@@ -40,15 +19,11 @@ getsrc_newdir_show_variables() {
 getsrc_newdir_calc_variables() {
     GETSRC_DIR="${GETSRC_DIR:-${HOME}/.local/src}"
 }
-## -----------------------------------------------------------------------------
-SCRNAME="`basename "$0"`"
+## -------------------------------------------------------------------
 getsrc_newdir_calc_variables
-if test @"${SCRNAME}" = @"getsrc-newdir";then
-    if test -n "$1";then
-        getsrc_newdir "$@"
-    else
-        sed -n 's/^ *#h: \{0,1\}//p' "$0" | sed "s|\\\$0|`basename $0`|g"
-        echo ""
-        sed -n 's/^ *#l: \{0,2\}//p' "$0"
-    fi
+if test @"$(basename "$0")" = @"getsrc-newdir"; then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
+        *)            getsrc_newdir "$@"; exit 0;;
+    esac
 fi

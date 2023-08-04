@@ -32,7 +32,6 @@ getsrc-cached
     Download a file to a local cache directory optionally
     with a FILENAME. Check honored environment variables
     with -v. Force download with -f.
-    
 
 getsrc-git
 
