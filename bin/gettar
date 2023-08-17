@@ -1,0 +1,51 @@
+#!/bin/sh -e
+##:
+#h: Usage: gettar [NAME-WILDCARD...]
+#h:
+#h: Fetch tars from `~/.gettar` and print their pathnames. You can
+#h: override the directory by setting GETTAR_DIR.
+#h:
+#h: If one of the supplied names is not found then it doesn't print
+#h: anything and shows an error message.
+#h:
+#h: If the wildcard matches more than one file, then it prints an
+#h: error.
+##:
+gettar() {
+    local n d="${GETTAR_DIR}" r="" t=""
+    if test ! -n "$1"; then
+        test ! -d "$d" || find "$d" -type f -iname '*.tar*'
+        return 0
+    fi
+    for n in "$@"; do
+        ## Add rel on release mode.
+        if test -n "${RELEASE_MODE}"; then
+            n="${n}-rel"
+        fi
+        ## Check the directory exists.
+        if test ! -d "$d"; then
+            echo >&2 "error: Tar $n not found."
+            return 1
+        fi
+        ## Find file.
+        t="`find "$d" -type f -iname "$n.tar*"`"
+        if test ! -n "$t"; then
+            echo >&2 "error: Tar $n not found."
+            return 1
+        fi
+        ## Save to results.
+        r="$r$t;"
+    done
+    echo -n "$r" | tr ';' '\n'
+}
+gettar_calc_variables() {
+    GETTAR_DIR="${GETTAR_DIR:-${HOME}/.gettar}"
+}
+## -------------------------------------------------------------------
+gettar_calc_variables
+if test @"$(basename "$0")" = @"gettar";then
+    case "${1}" in
+        -h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
+        *)         gettar "$@"; exit 0;;
+    esac
+fi

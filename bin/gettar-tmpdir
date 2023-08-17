@@ -1,0 +1,24 @@
+#!/bin/sh -e
+##:
+#h: Usage: gettar-tmpdir NAME
+#h:
+#h: Print a temporary directory name to use for creating a package.
+##:
+gettar_tmpdir() {
+    local name="$1"
+    if test ! -n "${name}";then
+        echo "error: Please specify a name. [-h for help]" >&2
+        return 1
+    fi
+    local tmpdir="/tmp/gettar/`whoami`/${name}"
+    ${HBUILD_SUDO} rm -rf "${tmpdir}"
+    mkdir -p "${tmpdir}"
+    echo "${tmpdir}"
+}
+## -------------------------------------------------------------------
+if test @"$(basename "$0")" = @"gettar-tmpdir";then
+    case "${1}" in
+        -h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
+        *)         gettar_tmpdir "$@"; exit 0;;
+    esac
+fi

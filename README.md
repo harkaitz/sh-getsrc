@@ -80,6 +80,31 @@ getsrc-vault
     
     The command should return a file or directory.
 
+gettar
+
+    Usage: gettar [NAME-WILDCARD...]
+    
+    Fetch tars from `~/.gettar` and print their pathnames. You can
+    override the directory by setting GETTAR_DIR.
+    
+    If one of the supplied names is not found then it doesn't print
+    anything and shows an error message.
+    
+    If the wildcard matches more than one file, then it prints an
+    error.
+
+gettar-create
+
+    Usage: gettar-create [-vq] DIRECTORY [NAME]
+    
+    Create a tar file in the tar directory. Links in 
+
+gettar-tmpdir
+
+    Usage: gettar-tmpdir NAME
+    
+    Print a temporary directory name to use for creating a package.
+
 ## Collaborating
 
 For making bug reports, feature requests and donations visit
