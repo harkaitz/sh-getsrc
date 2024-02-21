@@ -2,10 +2,9 @@
 ##:
 #h: Usage: getsrc-vault [-n NAME] COMMAND...
 #h:
-#h: Download source code and safe to GETSRC_VAULT if defined
-#h: and if it exists.
-#h:
-#h: The command should return a file or directory.
+#h: Execute command and receive a directory or filename from it's
+#h: standard output, then if GETSRC_VAULT is set create a tar in
+#h: that directory.
 ##:
 getsrc_vault() {
     local OPTIND optopt n='' vd="${GETSRC_VAULT}" td="/tmp/getsrc"
