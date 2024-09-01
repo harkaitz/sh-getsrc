@@ -1,66 +1,72 @@
 #!/bin/sh -e
 ##:
-#h: Usage: getsrc-git [-v][-n NAME][-N] URL[,BRANCH] [SDIR]
+#h: Usage: getsrc-git [-v][-n NAME][-N][-S] URL[,BRANCH] [SDIR]
 #h:
 #h: Download a git repository to a directory, optionally to
 #h: SDIR. Check honored environment variables with -v. Force
 #h: download with -f.
 ##:
 getsrc_git() {
-    local pwd="`pwd`"
+    local pwd="$(pwd)"
+    
     ## Parse command line arguments.
     local OPTIND optopt= opt_v= url_d= gargs= depth_1=
-    while getopts "vn:fN" optopt;do # OPTARG
+    while getopts "vn:fNS" optopt;do # OPTARG
         local ops="${ops}${optopt}"
         case $optopt in
             v)  local opt_v=y;;
             n)  local url_d="${OPTARG}";;
             f)  local GETSRC_FORCE=y;;
             N)  local gargs="${gargs} --depth 1" depth_1=y;;
+            S)  local gargs="${gargs} --recurse-submodules";;
             \?) return 1;;
         esac
     done
     shift $(( $OPTIND - 1 ))
     local url="$1" sdir="${2:-${GETSRC_DIR}}"
+    
     ## Show variables.
     if test @"${opt_v}" = @"y";then
         getsrc_git_show_variables
         return 0
     fi
+    
     ## Require at least an URL.
     if test ! -n "${url}";then
         echo "getsrc-git: error: Please specify an URL." >&2
         return 1
     fi
+    
     ## Get directory.
-    local url_d="`getsrc_git_extract_dir "${url}"`"
+    local url_d="$(getsrc_git_extract_dir "${url}")"
     if test ! -n "${url_d}";then
         echo "getsrc-git: error: Can't calculate directory from '${url}'." >&2
         return 1
     fi
     local dir="${sdir}/${url_d}"
+    
     ## Skip network operations directory if exists.
     if test ! -e "${dir}/.git" || test @"${GETSRC_FORCE}" = @"y";then
+        
         ## Download.
-        local url_v="`getsrc_git_extract_ver "${url}"`"
+        local url_v="$(getsrc_git_extract_ver "${url}")"
         local url_v="${url_v:-master}"
         if test ! -d "${dir}/.git";then
-            local url_u="`getsrc_git_extract_url "${url}"`"
-            echo "git clone ${url_u} ${dir}" >&2
-            git clone ${gargs} "${url_u}" "${dir}"
+            local url_u="$(getsrc_git_extract_url "${url}")"
+            getsrc_vrun git clone ${gargs} "${url_u}" "${dir}"
         fi
+        
         ## Checkout branch/tag.
         if test ! -n "${depth_1}"; then
-        echo "Entering directory ${dir} ..." >&2
-        cd "${dir}"
-        if test ! @"${url_v}" = @"any";then
-            echo "git checkout ${url_v}"         >&2
-            git checkout ${url_v} >&2
+            echo "Entering directory ${dir} ..." >&2
+            cd "${dir}"
+            if test ! @"${url_v}" = @"any";then
+                getsrc_vrun git checkout ${url_v}
+            fi
+            getsrc_vrun git submodule update --recursive --init
+            echo "Leaving directory ${dir} ..."  >&2
         fi
-        echo "git submodule update --recursive --init" >&2
-        git submodule update --recursive --init >&2
-        echo "Leaving directory ${dir} ..."  >&2
-        fi
+        
         cd "${pwd}"
     fi
     ## Print directory.
@@ -78,6 +84,7 @@ getsrc_git_calc_variables() {
 getsrc_git_extract_url() { echo "$1" | sed    's|,.*||';  }
 getsrc_git_extract_ver() { echo "$1" | sed -n 's|.*,||p'; }
 getsrc_git_extract_dir() { getsrc_git_extract_url "$1" | sed 's|^.*/||' | sed 's|\.git$||'; }
+getsrc_vrun()            { echo >&2 "$*"; "$@" >&2; }
 ## -------------------------------------------------------------------
 getsrc_git_calc_variables
 if test @"`basename "$0"`" = @"getsrc-git"; then

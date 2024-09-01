@@ -35,7 +35,7 @@ getsrc-cached
 
 getsrc-git
 
-    Usage: getsrc-git [-v][-n NAME][-N] URL[,BRANCH] [SDIR]
+    Usage: getsrc-git [-v][-n NAME][-N][-S] URL[,BRANCH] [SDIR]
     
     Download a git repository to a directory, optionally to
     SDIR. Check honored environment variables with -v. Force
@@ -49,10 +49,12 @@ getsrc-newdir
 
 getsrc-tar
 
-    Usage: getsrc-tar [-n NAME][-c 0] URL [SDIR]
+    Usage: getsrc-tar [-n NAME][-c 0][-b] URL [SDIR]
     
     Download a tar, choose a place for it, extract and print the directory
     onto which it was downloaded. With -c tell how much components to strip.
+    
+    With -b then the vault(1) will be used.
 
 getsrc-upload
 
@@ -75,10 +77,9 @@ getsrc-vault
 
     Usage: getsrc-vault [-n NAME] COMMAND...
     
-    Download source code and safe to GETSRC_VAULT if defined
-    and if it exists.
-    
-    The command should return a file or directory.
+    Execute command and receive a directory or filename from it's
+    standard output, then if GETSRC_VAULT is set create a tar in
+    that directory.
 
 gettar
 

@@ -1,18 +1,21 @@
 #!/bin/sh -e
 ##:
-#h: Usage: getsrc-tar [-n NAME][-c 0] URL [SDIR]
+#h: Usage: getsrc-tar [-n NAME][-c 0][-b] URL [SDIR]
 #h:
 #h: Download a tar, choose a place for it, extract and print the directory
 #h: onto which it was downloaded. With -c tell how much components to strip.
+#h:
+#h: With -b then the vault(1) will be used.
 ##:
 getsrc_tar() {
     ## Parse command line arguments.
-    local OPTIND optopt= opt_v=n nam= opt_c=1
-    while getopts "vn:c:" optopt;do # OPTARG
+    local OPTIND optopt= opt_v=n nam= opt_c=1 opt_b=
+    while getopts "vn:c:b" optopt;do # OPTARG
         case $optopt in
             v)  local opt_v=y;;
             n)  local nam="${OPTARG}";;
             c)  local opt_c="${OPTARG}";;
+            b)  local opt_b=${VAULT};;
             \?) return 1;;
         esac
     done
@@ -36,7 +39,7 @@ getsrc_tar() {
         if test ! -f "${tar}" || test @"${GETSRC_FORCE}" = @"y";then
             echo "wget -q -O ${tar} ${url}" >&2
             mkdir -p "${GETSRC_CACHE}"
-            wget -q -O "${tar}.tmp" "${url}" >&2
+            ${opt_b} wget -q -O "${tar}.tmp" "${url}" >&2
             mv "${tar}.tmp" "${tar}"         >&2
         fi
         rm -rf "${dir}"
