@@ -37,10 +37,15 @@ getsrc_tar() {
     local dir="${sdir}/${nam}"
     if test ! -d "${dir}/.tar" || test @"${GETSRC_FORCE}" = @"y";then
         if test ! -f "${tar}" || test @"${GETSRC_FORCE}" = @"y";then
-            echo "wget -q -O ${tar} ${url}" >&2
             mkdir -p "${GETSRC_CACHE}"
-            ${opt_b} wget -q -O "${tar}.tmp" "${url}" >&2
-            mv "${tar}.tmp" "${tar}"         >&2
+            if which curl >/dev/null 2>&1; then
+                echo "curl -s -L -o ${tar} ${url}" >&2
+                ${opt_b} curl -s -L -o "${tar}.tmp" "${url}" >&2
+            else
+                echo "wget -q -O ${tar} ${url}" >&2
+                ${opt_b} wget -q -O "${tar}.tmp" "${url}" >&2
+            fi
+            mv "${tar}.tmp" "${tar}" >&2
         fi
         rm -rf "${dir}"
         mkdir -p "${dir}"
