@@ -6,7 +6,7 @@
 ##:
 . gettar
 gettar_create() {
-    local OPTIND optopt d n l fl tl opt_v= opt_q= pwd="`pwd`"
+    local OPTIND=1 optopt d n l fl tl opt_v= opt_q= pwd="`pwd`"
 
     ## Parse command line arguments.
     while getopts "vq" optopt;do # OPTARG
@@ -49,7 +49,7 @@ gettar_create() {
     fi
 }
 ## -------------------------------------------------------------------
-if test @"$(basename "$0")" = @"gettar-create";then
+if test @"${SCRNAME:-$(basename "$0")}" = @"gettar-create"; then
     case "${1}" in
         ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
         *)            gettar_create "$@"; exit 0;;

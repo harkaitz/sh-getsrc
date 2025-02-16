@@ -7,7 +7,7 @@
 #h: that directory.
 ##:
 getsrc_vault() {
-    local OPTIND optopt n='' vd="${GETSRC_VAULT}" td="/tmp/getsrc"
+    local OPTIND=1 optopt n='' vd="${GETSRC_VAULT}" td="/tmp/getsrc"
     while getopts "n:" optopt; do
         case $optopt in
             n)  n="${OPTARG}";;
@@ -30,7 +30,7 @@ getsrc_vault() {
     fi
     echo "${src}"
 }
-if test @"$(basename "$0")" = @"getsrc-vault";then
+if test @"${SCRNAME:-$(basename "$0")}" = @"getsrc-vault"; then
     case "${1}" in
         ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
         *)            getsrc_vault "$@"; exit 0;;

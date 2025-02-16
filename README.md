@@ -108,7 +108,7 @@ gettar-tmpdir
 
 ## Collaborating
 
-For making bug reports, feature requests and donations visit
+For making bug reports, feature requests, support or consulting visit
 one of the following links:
 
 1. [gemini://harkadev.com/oss/](gemini://harkadev.com/oss/)

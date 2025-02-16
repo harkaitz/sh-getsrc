@@ -10,7 +10,7 @@ getsrc_git() {
     local pwd="$(pwd)"
     
     ## Parse command line arguments.
-    local OPTIND optopt= opt_v= url_d= gargs= depth_1=
+    local OPTIND=1 optopt= opt_v= url_d= gargs= depth_1=
     while getopts "vn:fNS" optopt;do # OPTARG
         local ops="${ops}${optopt}"
         case $optopt in
@@ -87,7 +87,7 @@ getsrc_git_extract_dir() { getsrc_git_extract_url "$1" | sed 's|^.*/||' | sed 's
 getsrc_vrun()            { echo >&2 "$*"; "$@" >&2; }
 ## -------------------------------------------------------------------
 getsrc_git_calc_variables
-if test @"`basename "$0"`" = @"getsrc-git"; then
+if test @"${SCRNAME:-$(basename "$0")}" = @"getsrc-git"; then
     case "${1}" in
         ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
         *)            getsrc_git "$@"; exit 0;;

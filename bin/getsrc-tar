@@ -9,7 +9,7 @@
 ##:
 getsrc_tar() {
     ## Parse command line arguments.
-    local OPTIND optopt= opt_v=n nam= opt_c=1 opt_b=
+    local OPTIND=1 optopt= opt_v=n nam= opt_c=1 opt_b=
     while getopts "vn:c:b" optopt;do # OPTARG
         case $optopt in
             v)  local opt_v=y;;
@@ -73,7 +73,7 @@ getsrc_tar_calc_variables() {
 }
 ## -------------------------------------------------------------------
 getsrc_tar_calc_variables
-if test @"$(basename "$0")" = @"getsrc-tar"; then
+if test @"${SCRNAME:-$(basename "$0")}" = @"getsrc-tar"; then
     case "${1}" in
         ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
         *)            getsrc_tar "$@"; exit 0;;

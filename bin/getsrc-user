@@ -9,7 +9,7 @@
 ##:
 getsrc_user() {
     ## Parse command line arguments.
-    local OPTIND optopt= o_v= o_s=
+    local OPTIND=1 optopt= o_v= o_s=
     while getopts "vs" optopt;do # OPTARG
         case $optopt in
             v)  local o_v=y;;
@@ -52,7 +52,7 @@ getsrc_git_calc_variables() {
 }
 ## -------------------------------------------------------------------
 getsrc_git_calc_variables
-if test @"$(basename "$0")" = @"getsrc-user";then
+if test @"${SCRNAME:-$(basename "$0")}" = @"getsrc-user"; then
     case "${1}" in
         ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
         *)            getsrc_user "$@"; exit 0;;

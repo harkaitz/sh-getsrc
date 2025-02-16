@@ -8,7 +8,7 @@
 ##:
 getsrc_cached() {
     ## Parse command line arguments.
-    local OPTIND optopt= opt_v=n opt_n=
+    local OPTIND=1 optopt= opt_v=n opt_n=
     while getopts "vn:f" optopt;do # OPTARG
         case $optopt in
             v)  local opt_v=y;;
@@ -53,7 +53,7 @@ getsrc_cached_calc_variables() {
 }
 ## -------------------------------------------------------------------
 getsrc_cached_calc_variables
-if test @"$(basename "$0")" = @"getsrc-cached"; then
+if test @"${SCRNAME:-$(basename "$0")}" = @"getsrc-cached"; then
     case "${1}" in
         ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0" ;;
         *)            getsrc_cached "$@"; exit 0;;
